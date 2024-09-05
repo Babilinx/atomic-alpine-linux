@@ -1,0 +1,9 @@
+EFI_UUID /efi vfat a 0 2
+
+SYS_UUID / btrfs noatime,compress=zstd:1,subvol=@system/snapshots/SNAPSHOT_NAME 0 0
+SYS_UUID /.system btrfs noatime,compress=zstd:1,subvol=@system 0 0
+SYS_UUID /opt btrfs noatime,compress=zstd:1,subvol=@data/opt 0 0
+SYS_UUID /var btrfs noatime,compress=zstd:1,subvol=@data/var 0 0
+SYS_UUID /home btrfs noatime,compress=zstd:3,subvol=@data/home 0 0
+
+overlay /etc overlay lowerdir=/etc,upperdir=/.system/etc/SNAPSHOT_NAME,workdir=/.system/etc-work 0 0
