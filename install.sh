@@ -59,7 +59,7 @@ EOF
 EFI_PART="${DISK_PARTITIONS}1"
 SYS_PART="${DISK_PARTITIONS}2"
 
-mkfs.vfat -n "EFI" "${SYS_PART}"
+mkfs.vfat -n "EFI" "${EFI_PART}"
 mkfs.btrfs --csum xxhash -L "SYS" "${SYS_PART}"
 
 # Base system layout
@@ -74,7 +74,7 @@ btrfs subv create /mnt/@aal/data/var
 btrfs subv create /mnt/@aal/data/opt
 btrfs subv create /mnt/@aal/data/home
 
-mkdir/mnt/@aal/snapshots/system /mnt/@aal/snapshots/etc /mnt/@aal/snapshots/work-etc
+mkdir /mnt/@aal/snapshots/system /mnt/@aal/snapshots/etc /mnt/@aal/snapshots/work-etc
 
 BASE_SNAPSHOT="$(date -u +"%Y-%m-%d_%H:%M:%S")_$(cat /dev/urandom | tr -dc 'a-zA-Z' | fold -w 8 | head -n 1)"
 btrfs subv create /mnt/@snapshots/system/$BASE_SNAPSHOT
