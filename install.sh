@@ -131,6 +131,11 @@ sed -i -e s/EFI_UUID/$EFI_UUID/g -e s/SYS_UUID/$SYS_UUID/g -e s/SNAPSHOT_NAME/$B
 mount-chroot "/mnt"
 
 # Add kernel-hooks
-chroot /mnt /sbin/apk add kernel-hooks
+chroot /mnt /sbin/apk add kernel-hooks stubbyboot-efistub@testing
 cp kernel-hooks.d/* /mnt/etc/kernel-hooks.d/
 chroot /mnt /sbin/apk fix kernel-hooks
+
+# End
+umount -R /mnt
+
+echo "Installation ended"
