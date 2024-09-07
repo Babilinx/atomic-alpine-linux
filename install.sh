@@ -97,3 +97,7 @@ apk del sfdisk lsblk
 
 # Installation
 BOOTLOADER=none setup-disk /mnt
+
+# Add snapshot details
+mkdir -p /mnt/usr/share/aal
+echo "${BASE_SNAPSHOT}" > /mnt/usr/share/snapshot-name
