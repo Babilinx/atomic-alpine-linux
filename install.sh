@@ -9,6 +9,25 @@ die() {
   exit $1
 }
 
+mount_chroot() {
+  CHROOT_PATH="$1"
+  # Chroot mounts from Alpine Linux Wiki (https://wiki.alpinelinux.org/wiki/Chroot)
+  mount --bind /dev $CHROOT_PATH/dev || clean_chroot 1 "/dev"
+  mount -t devpts devpts $CHROOT_PATH/dev/pts -o nosuid,noexec || clean_chroot 1 "dev/pts"
+  mount -t sysfs sys $CHROOT_PATH/sys -o nosuid,nodev,noexec,ro || clean_chroot 1 "sys"
+  mount -t proc proc $CHROOT_PATH/proc -o nosuid,nodev,noexec || clean_chroot 1 "proc"
+  mount -t tmpfs tmp $CHROOT_PATH/tmp -o mode=1777,nosuid,nodev,strictatime || clean_chroot 1 "tmp"
+  mount -t tmpfs run $CHROOT_PATH/run -o mode=0755,nosuid,nodev || clean_chroot 1 "run"
+  if [ -L $CHROOT_PATH/dev/shm ]; then
+    mkdir -p $CHROOT_PATH/`readlink $CHROOT_PATH/dev/shm` || clean_chroot 1 -m \
+      "ERROR: Can't create folder '$CHROOT_PATH/`readlink $CHROOT_PATH/dev/shm`'"
+    mount -t tmpfs shm $CHROOT_PATH/`readlink $CHROOT_PATH/dev/shm` -o mode=1777,nosuid,nodev || clean_chroot 1 "dev/shm"
+  else
+    mount -t tmpfs shm $CHROOT_PATH/dev/shm -o mode=1777,nosuid,nodev || clean_chroot 1 "dev/shm"
+  fi
+  mount -t vfat LABEL=EFI $CHROOT_PATH/efi  #TODO: add options
+}
+
 
 [ -d /sys/firmware/efi ] || die 1 "ERROR: Atomic Alpine Linux project relies on EFI boot mode. Detected BIOS."
 
@@ -107,3 +126,11 @@ EFI_UUID="$(blkid | grep LABEL=\"EFI\" | cut -d ' ' -f 3)"
 SYS_UUID="$(blkid | grep LABEL=\"SYS\" | cut -d ' ' -f 3)"
 cp ./fstab /mnt/etc
 sed -i -e s/EFI_UUID/$EFI_UUID/g -e s/SYS_UUID/$SYS_UUID/g -e s/SNAPSHOT_NAME/$BASE_SNAPSHOT/g /mnt/etc/fstab
+
+# Prepare for chroot
+mount-chroot "/mnt"
+
+# Add kernel-hooks
+chroot /mnt /sbin/apk add kernel-hooks
+cp kernel-hooks.d/* /mnt/etc/kernel-hooks.d/
+chroot /mnt /sbin/apk fix kernel-hooks
