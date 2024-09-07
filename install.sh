@@ -49,15 +49,12 @@ else
 	DISK_PARTITIONS="${INSTALL_DISK}"
 fi
 
-SFDISK_CONFIG="label: gpt
-"
-SFDISK_CONFIG+="device: ${INSTALL_DISK}
-"
-SFDISK_CONFIG+="${DISK_PARTITIONS}1: size=1G,type=uefi
-"
-SFDISK_CONFIG+="${DISK_PARTITIONS}2: type=linux
-"
-echo "$SFDISK_CONFIG" | sfdisk ${INSTALL_DISK}
+sfdisk "${INSTALL_DISK}" << "EOF"
+label: gpt
+device: ${INSTALL_DISK}
+${DISK_PARTITIONS}1: size=1G,type=uefi
+${DISK_PARTITIONS}2: type=linux
+EOF
 
 EFI_PART="${DISK_PARTITIONS}1"
 SYS_PART="${DISK_PARTITIONS}2"
