@@ -64,7 +64,7 @@ mkfs.btrfs --csum xxhash -L "SYS" "${SYS_PART}"
 
 # Base system layout
 
-mount -t btrfs "${SYS_PART}" -o noatime /mnt
+mount -t btrfs LABEL=SYS -o noatime /mnt
 
 btrfs subv create /mnt/@aal
 btrfs subv create /mnt/@aal/snapshots
@@ -82,16 +82,18 @@ btrfs subv create /mnt/@snapshots/etc/$BASE_SNAPSHOT
 
 umount /mnt
 
-mount -t btrfs "${SYS_PART}" -o noatime,compress=zstd:1,subvol=@snapshots/system/$BASE_SNAPSHOT /mnt
+mount -t btrfs LABEL=SYS -o noatime,compress=zstd:1,subvol=@snapshots/system/$BASE_SNAPSHOT /mnt
 
 mkdir /mnt/var /mnt/opt /mnt/efi /mnt/etc /mnt/home /mnt/.snapshots
 
-mount -t btrfs "${SYS_PART}" -o noatime,compress=zstd:1,subvol=@data/var /mnt/var
-mount -t btrfs "${SYS_PART}" -o noatime,compress=zstd:1,subvol=@data/opt /mnt/opt
-mount -t btrfs "${SYS_PART}" -o noatime,compress=zstd:3,subvol=@data/home /mnt/home
-mount -t btrfs "${SYS_PART}" -o noatime,compress=zstd:1,subvol=@snapshots /mnt/.snapshots
-mount -t overlay overlay -o lowerdir=/mnt/etc,upperdir=/mnt/.snapshots/etc/$BASE_SNAPSHOT /mnt/etc
-mount -t vfat "${EFI_PART}" /mnt/efi
+mount -t btrfs LABEL=SYS -o noatime,compress=zstd:1,subvol=@data/var /mnt/var
+mount -t btrfs LABEL=SYS -o noatime,compress=zstd:1,subvol=@data/opt /mnt/opt
+mount -t btrfs LABEL=SYS -o noatime,compress=zstd:3,subvol=@data/home /mnt/home
+mount -t btrfs LABEL=SYS -o noatime,compress=zstd:1,subvol=@snapshots /mnt/.snapshots
+mount -t vfat LABEL=EFI /mnt/efi
+
+# Remove unneeded packages
+apk del sfdisk lsblk
 
 # Installation
 BOOTLOADER=none setup-disk /mnt
