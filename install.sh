@@ -101,3 +101,9 @@ BOOTLOADER=none setup-disk /mnt
 # Add snapshot details
 mkdir -p /mnt/usr/share/aal
 echo "${BASE_SNAPSHOT}" > /mnt/usr/share/snapshot-name
+
+# Add fstab
+EFI_UUID="$(blkid | grep LABEL=\"EFI\" | cut -d ' ' -f 3)"
+SYS_UUID="$(blkid | grep LABEL=\"SYS\" | cut -d ' ' -f 3)"
+cp ./fstab /mnt/etc
+sed -i -e s/EFI_UUID/$EFI_UUID/g -e s/SYS_UUID/$SYS_UUID/g -e s/SNAPSHOT_NAME/$BASE_SNAPSHOT/g /mnt/etc/fstab
