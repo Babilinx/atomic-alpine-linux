@@ -1,4 +1,4 @@
-EFI_UUID /efi vfat a 0 2
+EFI_UUID /efi vfat utf-8 0 2
 
 SYS_UUID / btrfs noatime,compress=zstd:1,subvol=@system/snapshots/SNAPSHOT_NAME 0 0
 SYS_UUID /.system btrfs noatime,compress=zstd:1,subvol=@system 0 0
