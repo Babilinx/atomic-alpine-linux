@@ -11,3 +11,30 @@ except the one from your UEFI, and you can use secureboot to reduce attack surfa
 The end goal of the project is not to make Alpine Linux easier, instead it brings more complexity into it,
 but more to provide a tool that can ensure your system to boot at any time, even if an update breaks one snapshot.
 
+## Filesystem layout
+
+```
+sda1 - vfat
+\- /efi
+
+sda2 - btrfs
+|- @data/
+||- snapshots/
+|||- $hash/
+||||- infos
+||||- var/
+||\\- home/$user
+||- var/ -> /var
+||- home/ -> /home
+|\\- home/$user/
+|- @system/
+||- 0  # Available at boot
+||- 1  # Files that contains hashes to vol
+||- 2
+||- 3
+||- vols/
+|||- $hash/
+||||- infos
+||||- root/ -> /
+\\\\- etc/ -> /etc
+```
